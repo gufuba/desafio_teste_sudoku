@@ -124,7 +124,7 @@ describe('Regra 1: no maximo dois numeros iguais seguidos', () => {
   });
 
   test('uma celula vazia ou um valor diferente no meio quebra a sequencia', () => {
-    const comVazio = comValores([[0, 0, 0], [0, 1, 0], [0, 3, 0], [0, 4, 0]]); // 0 0 . 0 0
+    const comVazio = comValores([[0, 0, 0], [0, 1, 0], [0, 3, 0]]); // 0 0 . 0
     const comOutro = comValores([[1, 0, 1], [1, 1, 1], [1, 2, 0], [1, 3, 1]]); // 1 1 0 1
     expect(comVazio.conflitos()).toEqual([]);
     expect(comOutro.conflitos()).toEqual([]);
@@ -224,8 +224,7 @@ describe('Fim de jogo', () => {
 
   test('uma jogada errada e apontada como conflito', () => {
     const sudoku = new SudokuBinario(ULTIMA_LINHA_VAZIA);
-    // 1 na coluna 0 da ultima linha: a coluna ficaria 0,0,1,1,0,1 (ok) -> usar 0 gera tres zeros? nao;
-    // a linha 5 com "000" no inicio viola a regra 1:
+    // "000" no inicio da ultima linha viola a regra 1:
     sudoku.definir(5, 0, 0);
     sudoku.definir(5, 1, 0);
     sudoku.definir(5, 2, 0);
@@ -269,6 +268,14 @@ describe('Solucionador', () => {
   test('devolve null quando nao existe solucao (celulas fixas contraditorias)', () => {
     // Linha 0 com quatro zeros (nao ha como completar com 3 zeros e 3 uns).
     expect(new SudokuBinario(['00.0.0', '......', '......', '......', '......', '......']).resolver()).toBeNull();
+  });
+
+  test('devolve null quando nao ha conflito aparente, mas o tabuleiro nao tem solucao', () => {
+    // A linha 1 so pode ser completada com 1 (para ter 3 zeros) e ficaria igual a linha 0.
+    const impossivel = new SudokuBinario(['001101', '00110.', '......', '......', '......', '......']);
+    expect(impossivel.conflitos()).toEqual([]);
+    expect(impossivel.resolver()).toBeNull();
+    expect(impossivel.contarSolucoes()).toBe(0);
   });
 
   test('contarSolucoes: 1 para a ultima linha em branco, 1 para tabuleiro resolvido, 0 para impossivel', () => {
